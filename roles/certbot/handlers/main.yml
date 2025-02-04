@@ -1,0 +1,4 @@
+- name: Reload Cron
+  service:
+    name: cron
+    state: reloaded

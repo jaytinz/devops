@@ -1,0 +1,29 @@
+- name: Install Certbot and dependencies
+  apt:
+    name:
+      - certbot
+      - python3-certbot-nginx
+    state: present
+
+- name: Ensure webroot directory exists
+  file:
+    path: "{{ certbot_webroot_path }}"
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: '0755'
+
+- name: Obtain SSL certificates
+  command: >
+    certbot certonly --webroot -w {{ certbot_webroot_path }} -d {{ item }}
+    --non-interactive --agree-tos --email {{ certbot_email }}
+  loop: "{{ certbot_domains }}"
+  register: certbot_result
+  changed_when: "'Congratulations' in certbot_result.stdout"
+
+- name: Create renewal script
+  template:
+    src: certbot-renewal.j2
+    dest: /etc/cron.daily/certbot-renewal
+    mode: '0755'
+  notify: Reload Cron

@@ -1,0 +1,11 @@
+# Certbot Configuration
+certbot_email: admin@example.com
+certbot_domains:
+  - example.com
+  - www.example.com
+certbot_webroot_path: /var/www/html
+
+# Include encrypted secrets
+!vault |
+$ANSIBLE_VAULT;1.1;AES256
+...
