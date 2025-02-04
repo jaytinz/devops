@@ -1,0 +1,44 @@
+---
+- name: Install OpenSSH and open SSH port on Ubuntu and Fedora
+  hosts: all
+  become: yes
+  tasks:
+    - name: Install OpenSSH server on Ubuntu
+      apt:
+        name: openssh-server
+        state: present
+      when: ansible_os_family == "Debian"
+
+    - name: Install OpenSSH server on Fedora
+      dnf:
+        name: openssh-server
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    - name: Ensure SSH service is running and enabled on Ubuntu
+      service:
+        name: ssh
+        state: started
+        enabled: yes
+      when: ansible_os_family == "Debian"
+
+    - name: Ensure SSH service is running and enabled on Fedora
+      service:
+        name: sshd
+        state: started
+        enabled: yes
+      when: ansible_os_family == "RedHat"
+
+    - name: Open SSH port (22) on Ubuntu using ufw
+      ufw:
+        rule: allow
+        port: 22
+        proto: tcp
+      when: ansible_os_family == "Debian"
+
+    - name: Open SSH port (22) on Fedora using firewalld
+      firewalld:
+        port: 22/tcp
+        permanent: yes
+        state: enabled
+      when: ansible_os_family == "RedHat"
